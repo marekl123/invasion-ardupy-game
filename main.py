@@ -28,6 +28,7 @@ STICK_UP = Pin(Map.WIO_5S_UP, Pin.IN)
 STICK_DOWN = Pin(61, Pin.IN)
 
 FIRE_BUTTON = Pin(Map.WIO_KEY_C, Pin.IN)
+START_BUTTON = Pin(Map.WIO_KEY_B, Pin.IN)
 
 HALT_BUTTON = Pin(Map.WIO_KEY_A, Pin.IN)  # debugging sys.exit() button
 
@@ -77,6 +78,13 @@ ar_bullet_sprite = [
     2,
     0,
 ]
+
+
+def game_over():
+    lcd.setTextColor(0xF800, 0x0000)
+    lcd.setTextDatum(0)
+    lcd.setTextSize(4)
+    lcd.drawString("GAME OVER", 50, 110)
 
 
 def init_score_sprite(sprite):
@@ -178,6 +186,7 @@ def game_loop():
             collision_ship_with_enemy = False
             collision_enemy_with_bullet = False
 
+            button_b_released = False
             button_c_released = True
 
             init_on_start = False
@@ -223,6 +232,13 @@ def game_loop():
             bullet_y = ship_y - (rf * 3)
             button_c_released = False
 
+        if START_BUTTON.value() == 0 and button_b_released:
+            init_on_start = True
+            button_b_released = False
+
+        if START_BUTTON.value() == 1:
+            button_b_released = True
+
         if FIRE_BUTTON.value() == 1:
             button_c_released = True
 
@@ -260,6 +276,12 @@ def game_loop():
             bullet_sprite.fillSprite(0x0000)
 
             enemy_y -= 5  # prevents to retrigger the collision
+
+            game_over()
+
+            ship_sprite.pushSprite(ship_x, ship_y)
+            enemy_sprite.pushSprite(enemy_x, enemy_y)
+            ship_sprite.pushSprite(bullet_x, bullet_y)
 
         if collision_enemy_with_bullet:
             # Destroy enemy
