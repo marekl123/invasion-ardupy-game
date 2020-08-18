@@ -78,6 +78,16 @@ ar_bullet_sprite = [
 ]
 
 
+def check_collision(x1, w1, y1, h1, x2, w2, y2, h2):
+    bottom_collision = False
+
+    # bottom of 1 with top of 2
+    if ((x2 + w2 > x1) and (x2 < x1 + w1) and (y1 + h1 >= y2)):
+        bottom_collision = True
+
+        return bottom_collision
+
+
 def rand_val(x):
     random = (time.ticks_ms() * 4393 % x)
     return random
@@ -143,6 +153,9 @@ def game_loop():
             bullet_movement = True
             enemy_movement = True
 
+            collision_ship_with_enemy = False
+            collision_enemy_with_bullet = False
+
             button_c_released = True
 
             init_on_start = False
@@ -197,6 +210,61 @@ def game_loop():
                 bullet_y -= rf
             if bullet_y < -(rf * 4):
                 firing = False
+
+        # Check for collison of ship with enemy
+        if check_collision(enemy_x, enemy_size_x * rf, enemy_y, enemy_size_y * rf,
+                           ship_x, ship_size_x * rf, ship_y, ship_size_y * rf):
+            collision_ship_with_enemy = True
+
+        # Check for collision of enemy with bullet
+        if check_collision(enemy_x, enemy_size_x * rf, enemy_y, enemy_size_y * rf,
+                           bullet_x, bullet_size_x * rf, bullet_y, bullet_size_y * rf) and firing:
+            collision_enemy_with_bullet = True
+
+        if collision_ship_with_enemy:
+            enemy_movement = False
+            ship_movement = False
+            bullet_movement = False
+
+            collision_ship_with_enemy = False
+
+            # Destroy enemy
+            enemy_sprite.fillSprite(0x0000)
+
+            # Destroy ship
+            ship_sprite.fillSprite(0x0000)
+
+            # Destroy bullet
+            bullet_sprite.fillSprite(0x0000)
+
+            enemy_y -= 5  # prevents to retrigger the collision
+
+        if collision_enemy_with_bullet:
+            # Destroy enemy
+            enemy_sprite.fillSprite(0x0000)
+            enemy_sprite.pushSprite(enemy_x, enemy_y)
+
+            # Destroy bullet
+            bullet_sprite.fillSprite(0x0000)
+            bullet_sprite.pushSprite(bullet_x, bullet_y)
+
+            enemy_x = rand_val(320 - enemy_size_x * rf)
+            enemy_y = - enemy_size_y * rf
+            bullet_x = ship_x + int(ship_size_x * rf / 2)
+            bullet_y = ship_y - (rf * 3)
+            firing = False
+
+            # Recreate enemy sprite
+            enemy_sprite.deleteSprite()
+            create_sprite(enemy_sprite, ar_enemy_sprite,
+                          enemy_size_x, enemy_size_y)
+
+            # Recreate bullet sprite
+            bullet_sprite.deleteSprite()
+            create_sprite(bullet_sprite, ar_bullet_sprite,
+                          bullet_size_x, bullet_size_y)
+
+            collision_enemy_with_bullet = False
 
 
 game_loop()
