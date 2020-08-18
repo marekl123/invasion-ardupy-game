@@ -1,5 +1,6 @@
 from machine import LCD, Sprite, Map, Pin
 import sys
+import time
 
 # Create LCD object
 lcd = LCD()
@@ -77,6 +78,11 @@ ar_bullet_sprite = [
 ]
 
 
+def rand_val(x):
+    random = (time.ticks_ms() * 4393 % x)
+    return random
+
+
 def create_sprite(sprite, ar, size_x, size_y):
     sprite.createSprite(size_x * rf, size_y * rf)
     sprite.fillSprite(0x0000)
@@ -127,8 +133,9 @@ def game_loop():
             ship_y = 180
             bullet_x = ship_x + int(ship_size_x * rf / 2)
             bullet_y = ship_y - (rf * 3)
-            enemy_x = 100
-            enemy_y = 30
+
+            enemy_x = rand_val(320 - enemy_size_x * rf)
+            enemy_y = - enemy_size_y * rf
 
             firing = False
 
@@ -170,6 +177,7 @@ def game_loop():
 
         if enemy_y > 240:
             enemy_y = - enemy_size_y * rf
+            enemy_x = rand_val(320 - enemy_size_x * rf)
 
         if HALT_BUTTON.value() == 0:
             sys.exit()
