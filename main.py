@@ -9,6 +9,7 @@ lcd = LCD()
 ship_sprite = Sprite(lcd)
 bullet_sprite = Sprite(lcd)
 enemy_sprite = Sprite(lcd)
+score_sprite = Sprite(lcd)
 
 # Ship sprite dimensions
 ship_size_x = 21
@@ -78,6 +79,24 @@ ar_bullet_sprite = [
 ]
 
 
+def init_score_sprite(sprite):
+    sprite.createSprite(230, 16)
+    sprite.fillSprite(0x0000)
+    sprite.setTextColor(0xFDA0, 0x0000)
+    sprite.setTextDatum(0)
+    sprite.setTextSize(2)
+    sprite.drawString("Score:", 0, 0)
+
+
+def show_score(sprite, score):
+    sprite.setTextColor(0xFDA0, 0x0000)
+    sprite.drawString(str(score), 80, 0)
+
+    sprite.setTextColor(0xF800, 0x0000)
+
+    sprite.pushSprite(0, 0)
+
+
 def check_collision(x1, w1, y1, h1, x2, w2, y2, h2):
     bottom_collision = False
 
@@ -139,6 +158,8 @@ def game_loop():
             create_sprite(enemy_sprite, ar_enemy_sprite,
                           enemy_size_x, enemy_size_y)
 
+            init_score_sprite(score_sprite)
+
             ship_x = 150
             ship_y = 180
             bullet_x = ship_x + int(ship_size_x * rf / 2)
@@ -148,6 +169,7 @@ def game_loop():
             enemy_y = - enemy_size_y * rf
 
             firing = False
+            score = 0
 
             ship_movement = True
             bullet_movement = True
@@ -265,6 +287,10 @@ def game_loop():
                           bullet_size_x, bullet_size_y)
 
             collision_enemy_with_bullet = False
+
+            score += 1
+
+        show_score(score_sprite, score)
 
 
 game_loop()
