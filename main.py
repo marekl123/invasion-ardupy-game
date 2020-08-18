@@ -7,12 +7,15 @@ lcd = LCD()
 # Create sprite object
 ship_sprite = Sprite(lcd)
 bullet_sprite = Sprite(lcd)
+enemy_sprite = Sprite(lcd)
 
 # Ship sprite dimensions
 ship_size_x = 21
 ship_size_y = 21
 bullet_size_x = 1
 bullet_size_y = 4
+enemy_size_x = 16
+enemy_size_y = 12
 
 # Sprite resize factor
 rf = 2
@@ -49,6 +52,21 @@ ar_ship_sprite = [
     0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+]
+
+ar_enemy_sprite = [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0, 0,
+    0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0,
+    0, 0, 5, 5, 5, 0, 0, 5, 5, 0, 0, 5, 5, 5, 0, 0,
+    0, 0, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0, 0,
+    0, 0, 0, 0, 0, 5, 5, 0, 0, 5, 5, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 5, 5, 0, 5, 5, 0, 5, 5, 0, 0, 0, 0,
+    0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ]
 
 ar_bullet_sprite = [
@@ -102,16 +120,22 @@ def game_loop():
                           ship_size_x, ship_size_y)
             create_sprite(bullet_sprite, ar_bullet_sprite,
                           bullet_size_x, bullet_size_y)
+            create_sprite(enemy_sprite, ar_enemy_sprite,
+                          enemy_size_x, enemy_size_y)
 
             ship_x = 150
             ship_y = 180
             bullet_x = ship_x + int(ship_size_x * rf / 2)
             bullet_y = ship_y - (rf * 3)
+            enemy_x = 100
+            enemy_y = 30
 
             firing = False
 
             ship_movement = True
             bullet_movement = True
+            enemy_movement = True
+
             button_c_released = True
 
             init_on_start = False
@@ -138,6 +162,9 @@ def game_loop():
 
             # Display ship sprite on screen
             ship_sprite.pushSprite(ship_x, ship_y)
+
+        if enemy_movement:
+            enemy_sprite.pushSprite(enemy_x, enemy_y)
 
         if HALT_BUTTON.value() == 0:
             sys.exit()
