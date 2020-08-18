@@ -6,10 +6,13 @@ lcd = LCD()
 
 # Create sprite object
 ship_sprite = Sprite(lcd)
+bullet_sprite = Sprite(lcd)
 
 # Ship sprite dimensions
 ship_size_x = 21
 ship_size_y = 21
+bullet_size_x = 1
+bullet_size_y = 4
 
 # Sprite resize factor
 rf = 2
@@ -18,6 +21,8 @@ STICK_LEFT = Pin(Map.WIO_5S_LEFT, Pin.IN)
 STICK_RIGHT = Pin(Map.WIO_5S_RIGHT, Pin.IN)
 STICK_UP = Pin(Map.WIO_5S_UP, Pin.IN)
 STICK_DOWN = Pin(61, Pin.IN)
+
+FIRE_BUTTON = Pin(Map.WIO_KEY_C, Pin.IN)
 
 HALT_BUTTON = Pin(Map.WIO_KEY_A, Pin.IN)  # debugging sys.exit() button
 
@@ -44,6 +49,13 @@ ar_ship_sprite = [
     0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+]
+
+ar_bullet_sprite = [
+    0,
+    2,
+    2,
+    0,
 ]
 
 
@@ -88,11 +100,19 @@ def game_loop():
             lcd.fillScreen(lcd.color.BLACK)
             create_sprite(ship_sprite, ar_ship_sprite,
                           ship_size_x, ship_size_y)
+            create_sprite(bullet_sprite, ar_bullet_sprite,
+                          bullet_size_x, bullet_size_y)
 
             ship_x = 150
             ship_y = 180
+            bullet_x = ship_x + int(ship_size_x * rf / 2)
+            bullet_y = ship_y - (rf * 3)
+
+            firing = False
 
             ship_movement = True
+            bullet_movement = True
+            button_c_released = True
 
             init_on_start = False
 
@@ -121,6 +141,22 @@ def game_loop():
 
         if HALT_BUTTON.value() == 0:
             sys.exit()
+
+        if FIRE_BUTTON.value() == 0 and not firing and button_c_released:
+            firing = True
+            bullet_x = ship_x + int(ship_size_x * rf / 2)
+            bullet_y = ship_y - (rf * 3)
+            button_c_released = False
+
+        if FIRE_BUTTON.value() == 1:
+            button_c_released = True
+
+        if firing:
+            bullet_sprite.pushSprite(bullet_x, bullet_y)
+            if bullet_movement:
+                bullet_y -= rf
+            if bullet_y < -(rf * 4):
+                firing = False
 
 
 game_loop()
