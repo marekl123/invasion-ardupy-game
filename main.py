@@ -32,6 +32,8 @@ START_BUTTON = Pin(Map.WIO_KEY_B, Pin.IN)
 
 HALT_BUTTON = Pin(Map.WIO_KEY_A, Pin.IN)  # debugging sys.exit() button
 
+BUZZER_PIN = Pin(Map.WIO_BUZZER, Pin.OUT)
+
 # Ship sprite array
 ar_ship_sprite = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -79,12 +81,26 @@ ar_bullet_sprite = [
     0,
 ]
 
+delay = 0
+
+
+def make_sound(tone):
+    global delay
+    delay += 1
+    BUZZER_PIN.on()
+    if (delay > tone):
+        BUZZER_PIN.off()
+        delay = 0
+
 
 def game_over():
     lcd.setTextColor(0xF800, 0x0000)
     lcd.setTextDatum(0)
     lcd.setTextSize(4)
     lcd.drawString("GAME OVER", 50, 110)
+    for snd in range(100, 400):
+        for pause in range(0, 100):
+            make_sound(snd)
 
 
 def init_score_sprite(sprite):
@@ -222,6 +238,9 @@ def game_loop():
         if enemy_y > 240:
             enemy_y = - enemy_size_y * rf
             enemy_x = rand_val(320 - enemy_size_x * rf)
+            for snd in range(100, 200):
+                for pause in range(0, 50):
+                    make_sound(snd)
 
         if HALT_BUTTON.value() == 0:
             sys.exit()
@@ -246,6 +265,9 @@ def game_loop():
             bullet_sprite.pushSprite(bullet_x, bullet_y)
             if bullet_movement:
                 bullet_y -= rf
+                if (bullet_y > ship_y - ship_size_y * rf):
+                    make_sound(1)
+
             if bullet_y < -(rf * 4):
                 firing = False
 
@@ -297,6 +319,10 @@ def game_loop():
             bullet_x = ship_x + int(ship_size_x * rf / 2)
             bullet_y = ship_y - (rf * 3)
             firing = False
+
+            for snd in range(50, 100):
+                for pause in range(0, 100):
+                    make_sound(snd)
 
             # Recreate enemy sprite
             enemy_sprite.deleteSprite()
