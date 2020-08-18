@@ -107,6 +107,15 @@ def game_loop():
             if STICK_DOWN.value() == 0:
                 ship_y += 1
 
+            if ship_x >= 320 - ship_size_x * rf + 2 * rf:
+                ship_x = 320 - ship_size_x * rf + 2 * rf
+            if ship_y >= 240 - ship_size_y * rf + 2 * rf:
+                ship_y = 240 - ship_size_y * rf + 2 * rf
+            if ship_x <= -(2 * rf):
+                ship_x = -(2 * rf)
+            if ship_y <= -(2 * rf):
+                ship_y = -(2 * rf)
+
             # Display ship sprite on screen
             ship_sprite.pushSprite(ship_x, ship_y)
 
