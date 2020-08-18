@@ -110,13 +110,19 @@ def init_score_sprite(sprite):
     sprite.setTextDatum(0)
     sprite.setTextSize(2)
     sprite.drawString("Score:", 0, 0)
+    sprite.setTextColor(0xF800, 0x0000)
+    sprite.drawString("Enemy:", 140, 0)
 
 
-def show_score(sprite, score):
+def show_score(sprite, score, enemy_passed):
     sprite.setTextColor(0xFDA0, 0x0000)
     sprite.drawString(str(score), 80, 0)
 
     sprite.setTextColor(0xF800, 0x0000)
+    if enemy_passed >= 0:
+        sprite.drawString(str(3 - enemy_passed), 220, 0)
+    else:
+        sprite.drawString("0", 220, 0)
 
     sprite.pushSprite(0, 0)
 
@@ -194,6 +200,9 @@ def game_loop():
 
             firing = False
             score = 0
+            enemy_passed = 0
+            enemy_speed = 3
+            step_skip = 0
 
             ship_movement = True
             bullet_movement = True
@@ -233,11 +242,16 @@ def game_loop():
         if enemy_movement:
             enemy_sprite.pushSprite(enemy_x, enemy_y)
 
-            enemy_y += 1
+            if step_skip > enemy_speed:
+                enemy_y += 1
+                step_skip = 0
+
+            step_skip += 1
 
         if enemy_y > 240:
             enemy_y = - enemy_size_y * rf
             enemy_x = rand_val(320 - enemy_size_x * rf)
+            enemy_passed += 1
             for snd in range(100, 200):
                 for pause in range(0, 50):
                     make_sound(snd)
@@ -281,7 +295,7 @@ def game_loop():
                            bullet_x, bullet_size_x * rf, bullet_y, bullet_size_y * rf) and firing:
             collision_enemy_with_bullet = True
 
-        if collision_ship_with_enemy:
+        if collision_ship_with_enemy or enemy_passed == 3:
             enemy_movement = False
             ship_movement = False
             bullet_movement = False
@@ -298,6 +312,7 @@ def game_loop():
             bullet_sprite.fillSprite(0x0000)
 
             enemy_y -= 5  # prevents to retrigger the collision
+            enemy_passed = -1  # prevent to retrigger when enemy passed = 3
 
             game_over()
 
@@ -337,8 +352,11 @@ def game_loop():
             collision_enemy_with_bullet = False
 
             score += 1
+            # Increase speed of enemy at every 5 score points
+            if score % 5 == 0 and enemy_speed > 0:
+                enemy_speed -= 1
 
-        show_score(score_sprite, score)
+        show_score(score_sprite, score, enemy_passed)
 
 
 game_loop()
