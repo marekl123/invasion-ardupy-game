@@ -1,4 +1,5 @@
-from machine import LCD, Sprite
+from machine import LCD, Sprite, Map, Pin
+import sys
 
 # Create LCD object
 lcd = LCD()
@@ -12,6 +13,13 @@ ship_size_y = 21
 
 # Sprite resize factor
 rf = 2
+
+STICK_LEFT = Pin(Map.WIO_5S_LEFT, Pin.IN)
+STICK_RIGHT = Pin(Map.WIO_5S_RIGHT, Pin.IN)
+STICK_UP = Pin(Map.WIO_5S_UP, Pin.IN)
+STICK_DOWN = Pin(61, Pin.IN)
+
+HALT_BUTTON = Pin(Map.WIO_KEY_A, Pin.IN)  # debugging sys.exit() button
 
 # Ship sprite array
 ar_ship_sprite = [
@@ -69,14 +77,41 @@ def create_sprite(sprite, ar, size_x, size_y):
             sprite.fillRect(x * rf, y * rf, rf, rf, color)
 
 
-# Fill the LCD screen with color black
-lcd.fillScreen(lcd.color.BLACK)
+def game_loop():
 
-create_sprite(ship_sprite, ar_ship_sprite, ship_size_x, ship_size_y)
+    init_on_start = True
 
-# Initial value for ship sprite
-ship_x = 150
-ship_y = 180
+    while True:
 
-# Display ship sprite on screen
-ship_sprite.pushSprite(ship_x, ship_y)
+        if init_on_start:
+
+            lcd.fillScreen(lcd.color.BLACK)
+            create_sprite(ship_sprite, ar_ship_sprite,
+                          ship_size_x, ship_size_y)
+
+            ship_x = 150
+            ship_y = 180
+
+            ship_movement = True
+
+            init_on_start = False
+
+        # Check for input
+        if ship_movement:
+            if STICK_LEFT.value() == 0:
+                ship_x -= 1
+            if STICK_RIGHT.value() == 0:
+                ship_x += 1
+            if STICK_UP.value() == 0:
+                ship_y -= 1
+            if STICK_DOWN.value() == 0:
+                ship_y += 1
+
+            # Display ship sprite on screen
+            ship_sprite.pushSprite(ship_x, ship_y)
+
+        if HALT_BUTTON.value() == 0:
+            sys.exit()
+
+
+game_loop()
