@@ -166,6 +166,11 @@ def game_loop():
         if enemy_movement:
             enemy_sprite.pushSprite(enemy_x, enemy_y)
 
+            enemy_y += 1
+
+        if enemy_y > 240:
+            enemy_y = - enemy_size_y * rf
+
         if HALT_BUTTON.value() == 0:
             sys.exit()
 
